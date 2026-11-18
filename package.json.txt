@@ -1,0 +1,10 @@
+{
+  "name": "hoc-tieng-trung",
+  "version": "1.0.0",
+  "description": "App học tiếng Trung HSK 1 với SRS và push notification",
+  "private": true,
+  "dependencies": {
+    "web-push": "^3.6.7",
+    "@vercel/kv": "^2.0.0"
+  }
+}

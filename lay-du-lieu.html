@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head><meta charset="UTF-8"><title>Lấy dữ liệu HSK</title></head>
+<body style="padding: 20px; font-family: sans-serif;">
+  <h2>Tạo File Data.js Toàn Bộ HSK 1-9</h2>
+  <button id="btn" onclick="taiDuLieu()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #e74c3c; color: white; border: none; border-radius: 8px;">🚀 Bấm để lấy Full Dữ Liệu</button>
+  <p id="status" style="color: blue;"></p>
+  <textarea id="result" style="width: 100%; height: 400px; margin-top: 10px; font-family: monospace; display: none;"></textarea>
+
+  <script>
+    async function taiDuLieu() {
+      const btn = document.getElementById('btn');
+      const status = document.getElementById('status');
+      const result = document.getElementById('result');
+      
+      btn.disabled = true;
+      status.innerText = "⏳ Đang tải dữ liệu từ GitHub, vui lòng đợi...";
+
+      try {
+        // Lấy dữ liệu từ kho mã nguồn mở
+        const res = await fetch('https://raw.githubusercontent.com/drkameleon/complete-hsk-vocabulary/master/complete-hsk-vocabulary.json');
+        const data = await res.json();
+
+        // Hàm chuyển đổi định dạng
+        const formatData = (words) => words.map(w => ({
+          hanzi: w.simplified,
+          pinyin: w.pinyin,
+          meaning: w.translations ? w.translations.en : w.meaning || ""
+        }));
+
+        // Tạo object chứa các cấp độ
+        const fullData = {
+          levels: [
+            { id: 'hsk1', name: 'HSK 1', desc: 'Nhập môn', color: '#27ae60', total: data.hsk1.length },
+            { id: 'hsk2', name: 'HSK 2', desc: 'Sơ cấp', color: '#3498db', total: data.hsk2.length },
+            { id: 'hsk3', name: 'HSK 3', desc: 'Trung cấp', color: '#9b59b6', total: data.hsk3.length },
+            { id: 'hsk4', name: 'HSK 4', desc: 'Trung cao', color: '#e67e22', total: data.hsk4.length },
+            { id: 'hsk5', name: 'HSK 5', desc: 'Cao cấp', color: '#e74c3c', total: data.hsk5.length },
+            { id: 'hsk6', name: 'HSK 6', desc: 'Lưu loát', color: '#c0392b', total: data.hsk6.length },
+            { id: 'hsk7', name: 'HSK 7-9', desc: 'Chuyên gia', color: '#8e44ad', total: data.hsk7.length + data.hsk8.length + data.hsk9.length }
+          ],
+          hsk1: formatData(data.hsk1),
+          hsk2: formatData(data.hsk2),
+          hsk3: formatData(data.hsk3),
+          hsk4: formatData(data.hsk4),
+          hsk5: formatData(data.hsk5),
+          hsk6: formatData(data.hsk6),
+          hsk7: formatData([...data.hsk7, ...data.hsk8, ...data.hsk9])
+        };
+
+        // Tạo mã Javascript
+        const code = "const HSK_DATA = " + JSON.stringify(fullData, null, 2) + ";";
+        
+        result.value = code;
+        result.style.display = "block";
+        status.innerHTML = "✅ Đã xong! Bấm nút <b>Copy</b> bên dưới rồi dán vào file <code>data.js</code>.";
+        
+        // Tự động copy vào clipboard
+        result.select();
+        document.execCommand("copy");
+        status.innerHTML += "<br><b>Đã tự động Copy vào bộ nhớ tạm!</b>";
+
+      } catch (error) {
+        status.innerText = "❌ Lỗi kết nối mạng: " + error.message;
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
